@@ -1,101 +1,208 @@
-<script src="https://code.angularjs.org/1.2.1/angular.min.js"></script>
-<script>
-// see gist: https://gist.github.com/aberke/042eef0f37dba1138f9e
+	<script src="https://code.angularjs.org/1.2.1/angular.min.js"></script>
+	<script>
+	// see gist: https://gist.github.com/aberke/042eef0f37dba1138f9e
 
-function MyCntl($scope) {
-    $scope.myModel = {};
-    $scope.myPrompt = "Input your phonenumber here!";
-}
+	function MyCntl($scope) {
+	    $scope.myModel = {};
+	    $scope.myPrompt = "Input your phonenumber here!";
+	}
 
-var phonenumberModule = angular.module('phonenumberModule', [])
- 
-	.directive('phonenumberDirective', ['$filter', function($filter) {
-		/*
-		Intended use:
-			<phonenumber-directive placeholder='prompt' model='someModel.phonenumber'></phonenumber-directive>
-		Where:
-			someModel.phonenumber: {String} value which to bind only the numeric characters [0-9] entered
-				ie, if user enters 617-2223333, value of 6172223333 will be bound to model
-			prompt: {String} text to keep in placeholder when no numeric input entered
-		*/
- 
-		function link(scope, element, attributes) {
- 
-			// scope.inputValue is the value of input element used in template
-			scope.inputValue = scope.phonenumberModel;
- 
-			scope.$watch('inputValue', function(value, oldValue) {
+	var phonenumberModule = angular.module('phonenumberModule', [])
+	 
+		.directive('phonenumberDirective', ['$filter', function($filter) { 
+			/*
+			Intended use:
+				<phonenumber-directive placeholder='prompt' model='someModel.phonenumber'></phonenumber-directive>
+			Where:
+				someModel.phonenumber: {String} value which to bind only the numeric characters [0-9] entered
+					ie, if user enters 617-2223333, value of 6172223333 will be bound to model
+				prompt: {String} text to keep in placeholder when no numeric input entered
+			*/
+	 
+			function link(scope, element, attributes) {  
+				 
+	 
+				// scope.inputValue is the value of input element used in template       
+				scope.inputValue = scope.phonenumberModel;
+	 
+				scope.$watch('inputValue', function(value, oldValue) {   
 				
-				value = String(value);
-				var number = value.replace(/[^0-9]+/g, '');
-				scope.phonenumberModel = number;
-				scope.inputValue = $filter('phonenumber')(number);
-			});
-		}
-		
-		return {
-			link: link,
-			restrict: 'E',
-			scope: {
-				phonenumberPlaceholder: '=placeholder',
-				phonenumberModel: '=model',
-			},
-			//templateUrl: '/static/phonenumberModule/template.html',
-			template: '<input ng-model="inputValue" type="tel" class="phonenumber" placeholder="{{phonenumberPlaceholder}}" title="Phonenumber (Format: (999) 9999-9999)">',
-		};
-	}])
- 
-	.filter('phonenumber', function() {
-	    /* 
-	    Format phonenumber as: c (xxx) xxx-xxxx
-	    	or as close as possible if phonenumber length is not 10
-	    	if c is not '1' (country code not USA), does not use country code
-	    */
-	    
-	    return function (number) {
+					
+					value = String(value);
+					var number = value.replace(/[^0-9]+/g, '');
+					scope.phonenumberModel = number;
+					scope.inputValue = $filter('phonenumber')(number);
+				});
+			}
+			
+			return {
+				link: link,
+				restrict: 'E',
+				scope: {
+					phonenumberPlaceholder: '=placeholder',
+					phonenumberModel: '=model',
+				},
+				//templateUrl: '/static/phonenumberModule/template.html',
+				template: '<input ng-model="inputValue" type="tel" class="phonenumber" placeholder="{{phonenumberPlaceholder}}" title="Phonenumber (Format: 999 9999-9999)">',
+			};
+		}])
+	 
+		.filter('phonenumber', function() {
 		    /* 
-		    @param {Number | String} number - Number that will be formatted as telephone number
-		    Returns formatted number: (###) ###-####
-		    	if number.length < 4: ###
-		    	else if number.length < 7: (###) ###
- 
-		    Does not handle country codes that are not '1' (USA)
+		    Format phonenumber as: c (xxx) xxx-xxxx
+		    	or as close as possible if phonenumber length is not 10
+		    	if c is not '1' (country code not USA), does not use country code
 		    */
-	        if (!number) { return ''; }
+		    
+		    return function (number) {
+			    /* 
+			    @param {Number | String} number - Number that will be formatted as telephone number
+			    Returns formatted number: (###) ###-####
+			    	if number.length < 4: ###
+			    	else if number.length < 7: (###) ###
+	 
+			    Does not handle country codes that are not '1' (USA)
+			    */
+		        if (!number) { return ''; }
+	 
+		        number = String(number);
+	 
+		        // Will return formattedNumber. 
+		        // If phonenumber isn't longer than an area code, just show number
+		        var formattedNumber = number;
+		        var numberOfPossibleCombination =0;
+	 
+				// if the first character is '1', strip it out and add it back
+				var c = (number[0] == '1') ? '1 ' : '';
+				number = number[0] == '1' ? number.slice(1) : number;
+	 
+				// # (###) ###-#### as c (area) front-end
+				var area = number.substring(0,3);
+				var front = number.substring(3, 6);
+				var end = number.substring(6, 10);
+	           // numberOfPossibleCombination=numberOfPossibleCombination+1;
+	            //console.log(numberOfPossibleCombination);
+				if (front) {
+					formattedNumber = (c + "(" + area + ") " + front);	
+				}
+				if (end) {
+					formattedNumber += ("-" + end);
+				}
+				
+				return formattedNumber;
+		    };
+		});
+
+	</script>
+
+
+<script>
+
+
+
+function letterCombinations(digits) {
+
+
+
+    var map = [];
+    map[1]="703.993.9393 M";
+	map[2]="703.993.9393 M";
+    map[3]="703-993-9393 M";
+    map[4]="703 993 9393 C";
+    map[5]="703 993 9393 M";
+    map[6]="703 993 9393 C";
+    map[7]="703 993 9393 H";
+    map[8]="703-993-9393M";
+    map[9]="703-993-9393C"; 
+    map[0]="703-993-9393M";
  
-	        number = String(number);
+    var result = [];
  
-	        // Will return formattedNumber. 
-	        // If phonenumber isn't longer than an area code, just show number
-	        var formattedNumber = number;
-	        var numberOfPossibleCombination =0;
+    if(digits == null || digits.length == 0)
+        return result;
  
-			// if the first character is '1', strip it out and add it back
-			var c = (number[0] == '1') ? '1 ' : '';
-			number = number[0] == '1' ? number.slice(1) : number;
  
-			// # (###) ###-#### as c (area) front-end
-			var area = number.substring(0,3);
-			var front = number.substring(3, 6);
-			var end = number.substring(6, 10);
- numberOfPossibleCombination=numberOfPossibleCombination+1;
-			if (front) {
-				formattedNumber = (c + "(" + area + ") " + front);	
-			}
-			if (end) {
-				formattedNumber += ("-" + end);
-			}
-			return formattedNumber;
-	    };
-	});
+ 
+    return map;
+}
+ 
+
+
+//console.log(letterCombinations("23"));  
+
+
+
+ function changeText(value) {
+				
+               var myTable = document.getElementById('myTable');
+
+
+
+               myTable.rows[0].cells[0].innerHTML = letterCombinations(value)[0];
+			    myTable.rows[1].cells[0].innerHTML = letterCombinations(value)[1];
+				 myTable.rows[2].cells[0].innerHTML = letterCombinations(value)[2];
+				  myTable.rows[3].cells[0].innerHTML = letterCombinations(value)[3];
+				   myTable.rows[4].cells[0].innerHTML = letterCombinations(value)[4];
+				    myTable.rows[5].cells[0].innerHTML = letterCombinations(value)[5];
+					 myTable.rows[6].cells[0].innerHTML = letterCombinations(value)[6]; 
+					  myTable.rows[7].cells[0].innerHTML = letterCombinations(value)[7];
+            }
+
+
+
 
 </script>
-<div ng-app="phonenumberModule" ng-controller="MyCntl">
 
-    <phonenumber-directive placeholder="myPrompt" model='myModel.phonenumber'></phonenumber-directive>
-    
-     <p>phonenumber Count: {{ myModel.phonenumber.length }}</p>
-    
-        <p>phonenumber value: {{ myModel.phonenumber }}</p>
-    <p>formatted phonenumber: {{ myModel.phonenumber | phonenumber }}</p>
-</div>
+<h1> Angular JS Springboot Application</h1>
+
+
+	<div ng-app="phonenumberModule" ng-controller="MyCntl">
+
+	  Enter your phone number Here  <phonenumber-directive placeholder="myPrompt" model='myModel.phonenumber'></phonenumber-directive>
+	    
+	     <p>Total possible Combinations: 8</p>
+	    
+<!-- 	        <p>phonenumber value: {{ myModel.phonenumber }}</p> -->
+	    <p id="para">formatted phonenumber: {{ myModel.phonenumber | phonenumber }}</p>  
+
+		
+	</div>
+
+
+
+<p>List of Possible Phone Number Combinations</p>
+
+<table id ="myTable"cellpadding="1" cellspacing="1" width="40%" bgcolor="#ffffff"> 
+<tr>
+	<td >row1</td>
+</tr>
+<tr>
+	<td >row2</td>   
+</tr>
+<tr> 
+	<td  >row3</td> 
+</tr>
+<tr>  
+	<td >row1</td>
+</tr> 
+<tr>
+	<td >row2</td>   
+</tr>
+<tr> 
+	<td >row3</td> 
+</tr>
+<tr>
+	<td >row1</td>
+</tr>
+<tr>
+	<td >row2</td>   
+</tr>
+
+</table>
+<script type="text/javascript">     
+
+
+
+changeText("7039875577");
+            
+</script>
